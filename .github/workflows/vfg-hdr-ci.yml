@@ -21,6 +21,8 @@ jobs:
           python-version: '3.11'
       - name: BT.2020 numeric regression tests
         run: python tests/vfg_hdr10_numeric.py
+      - name: Validate HDR10 and SDR ffprobe checks
+        run: python tests/vfg_hdr10_media_check.py --self-test
 
   build-x64:
     runs-on: windows-2022
