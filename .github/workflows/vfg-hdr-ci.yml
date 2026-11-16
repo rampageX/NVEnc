@@ -58,27 +58,22 @@ jobs:
           set ONNXRUNTIME_DIR=${{ github.workspace }}\onnxruntime\onnxruntime-win-x64-gpu-1.23.2
           set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
           set CUDA_PATH_V11_8=%CUDA_PATH%
-          msbuild NVEnc.sln /t:build /p:configuration=RelStatic /p:Platform=x64 -maxcpucount || exit /b 1
+          msbuild NVEncC\NVEncC.vcxproj /t:Build /p:Configuration=RelStatic /p:Platform=x64 /p:BuildProjectReferences=true -maxcpucount || exit /b 1
 
-      - name: Package portable test build
+      - name: Smoke-test and stage executable only
         run: |
-          mkdir NVEncC_VFG_HDR10_Test
-          copy _build\x64\RelStatic\NVEncC64.exe NVEncC_VFG_HDR10_Test\ || exit /b 1
-          if exist _build\x64\RelStatic\*.dll copy _build\x64\RelStatic\*.dll NVEncC_VFG_HDR10_Test\
-          if exist resource\nnedi3_weight\nnedi3_weights.bin copy resource\nnedi3_weight\nnedi3_weights.bin NVEncC_VFG_HDR10_Test\
-          if exist NVEncNVOFFRUCBin\*.dll copy NVEncNVOFFRUCBin\*.dll NVEncC_VFG_HDR10_Test\
-          if exist NVEncNVSDKNGXBin\*.dll copy NVEncNVSDKNGXBin\*.dll NVEncC_VFG_HDR10_Test\
-          if exist libvship_nvidia_5_0\*.dll copy libvship_nvidia_5_0\*.dll NVEncC_VFG_HDR10_Test\
-          copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\nvrtc64_*_0.dll" NVEncC_VFG_HDR10_Test\
-          copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\nvrtc-builtins64_*.dll" NVEncC_VFG_HDR10_Test\
-          NVEncC_VFG_HDR10_Test\NVEncC64.exe --version || exit /b 1
-          NVEncC_VFG_HDR10_Test\NVEncC64.exe --check-cmd-parse || exit /b 1
-          NVEncC_VFG_HDR10_Test\NVEncC64.exe --check-cmd-parse help || exit /b 1
+          set "EXE=_build\x64\RelStatic\NVEncC64.exe"
+          if not exist "%EXE%" exit /b 1
+          "%EXE%" --version || exit /b 1
+          "%EXE%" --check-cmd-parse || exit /b 1
+          "%EXE%" --check-cmd-parse help || exit /b 1
+          mkdir NVEncC_VFG_HDR10_EXE
+          copy "%EXE%" NVEncC_VFG_HDR10_EXE\ || exit /b 1
 
       - name: Upload test artifact only (no release or tag)
         uses: actions/upload-artifact@v4
         with:
-          name: NVEncC_VFG_HDR10_Test_x64
-          path: NVEncC_VFG_HDR10_Test/
+          name: NVEncC_VFG_HDR10_EXE_x64
+          path: NVEncC_VFG_HDR10_EXE/
           retention-days: 14
           if-no-files-found: error
