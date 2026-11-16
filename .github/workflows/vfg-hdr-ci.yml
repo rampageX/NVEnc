@@ -58,7 +58,7 @@ jobs:
           set ONNXRUNTIME_DIR=${{ github.workspace }}\onnxruntime\onnxruntime-win-x64-gpu-1.23.2
           set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
           set CUDA_PATH_V11_8=%CUDA_PATH%
-          msbuild NVEncC\NVEncC.vcxproj /t:Build /p:Configuration=RelStatic /p:Platform=x64 /p:BuildProjectReferences=true -maxcpucount || exit /b 1
+          msbuild NVEnc.sln /t:NVEncC /p:Configuration=RelStatic /p:Platform=x64 -maxcpucount || exit /b 1
 
       - name: Smoke-test and stage executable only
         run: |
